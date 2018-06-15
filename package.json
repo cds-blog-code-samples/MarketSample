@@ -1,0 +1,17 @@
+{
+  "name": "simple_bank",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "develop": "truffle develop"
+  },
+  "author": "Amal Sudama <cds.sudama@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "truffle": "^4.1.11"
+  }
+}
