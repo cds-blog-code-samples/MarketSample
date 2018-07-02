@@ -6,8 +6,8 @@ import "../contracts/SupplyChain.sol";
 
 
 contract TestSupplyChain {
-    // uint public initialBalance = 100;
-    uint public initialBalance;
+    // todo fails with 100 ether;
+    uint public initialBalance = 100;
     SupplyChain public chain;
 
     string itemName = "Gem";
@@ -16,7 +16,6 @@ contract TestSupplyChain {
     function beforeEach() public
     {
         chain = new SupplyChain();
-        initialBalance = 100;
     }
 
     function putItemForSale() public
@@ -54,8 +53,13 @@ contract TestSupplyChain {
         // this seems like transferring to self
         // how to do this in solidity?
         uint offer = itemPrice - 1; // low ball price
-        // bool result = address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint)", sku));
-        bool result = address(chain).call.value(offer)(bytes4(bytes32(keccak256("buyItem(uint)", sku))));
+
+        // reasons it could fail
+        // 1. code executed and reverted correctly... but it doesn't because `testUserPaysTheRightPrice` fails
+        // 2. funds -- does calling address have enough funds? how to set it?
+        // 3. this statement returns a nonsensical hash
+        // 4. something else?
+        bool result = address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint)", sku));
         Assert.isFalse(result, "under Paid for item");
     }
 
@@ -67,8 +71,7 @@ contract TestSupplyChain {
         // this seems like transferring to self
         // how to do this in solidity?
         uint offer = itemPrice + 1; // exceed price
-        // bool result = address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint)", sku));
-        bool result = address(chain).call.value(offer)(bytes4(bytes32(keccak256("buyItem(uint)", sku))));
+        bool result = address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint)", sku));
         Assert.isTrue(result, "Paid the correct price...");
     }
 
