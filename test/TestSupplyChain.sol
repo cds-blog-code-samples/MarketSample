@@ -6,38 +6,34 @@ import "../contracts/SupplyChain.sol";
 
 
 contract TestSupplyChain {
-    // todo fails with 100 ether;
     uint public initialBalance = 1 ether;
-    // SupplyChain public chain;
+    SupplyChain public chain;
 
-    string itemName = "Gem";
-    uint   itemPrice = 3;
-
-    // function beforeEach() public
-    // {
-        // chain = new SupplyChain();
-    // }
-
-    // function putItemForSale() public
-    // {
-        // chain.addItem(itemName, itemPrice);
-    // }
+    function beforeEach() public
+    {
+        chain = new SupplyChain();
+    }
 
     // Test for failing conditions in this contracts
     // test that every modifier is working
     function testItemCanBePutOnSale() public {
-        SupplyChain chain = new SupplyChain();
+        string memory itemName = "Gem";
+        uint   itemPrice = 3;
         chain.addItem(itemName, itemPrice);
-        // putItemForSale();
 
         uint expectedState = 0; // 0: Sale
         uint expectedSku = 0;
         address expectedBuyer = address(0);
         address expectedSeller = this;
 
-        (
-        string memory name, uint sku, uint price, uint state, address seller, address buyer
-        )  = chain.fetchItem(expectedSku); // the first item
+        string memory name;
+        uint sku;
+        uint price;
+        uint state;
+        address seller;
+        address buyer;
+
+        ( name, sku, price, state, seller, buyer) = chain.fetchItem(expectedSku); // the first item
 
         Assert.equal(sku, expectedSku, "Item sku is correct");
         Assert.equal(name, itemName, "Item is named correctly");
@@ -48,23 +44,24 @@ contract TestSupplyChain {
     }
 
     function testUserDoesNotPaysTheRightPrice() public payable {
-        SupplyChain chain = new SupplyChain();
+        string memory itemName = "Gem";
+        uint   itemPrice = 3;
         chain.addItem(itemName, itemPrice);
-        // putItemForSale();
-        uint sku = 0;
 
+        uint sku = 0;
         uint offer = itemPrice - 1; // low ball price
+
         bool result = address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
         Assert.isFalse(result, "under Paid for item");
     }
 
     function testUserPaysTheRightPrice() public payable {
-        SupplyChain chain = new SupplyChain();
+        string memory itemName = "Gem";
+        uint   itemPrice = 3;
         chain.addItem(itemName, itemPrice);
-        // putItemForSale();
-        uint sku = 0;
 
-        uint offer = itemPrice + 1; // exceed price
+        uint sku = 0;
+        uint offer = itemPrice + 1; // low ball price
         bool result = address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
         Assert.isTrue(result, "Paid the correct price...");
     }
