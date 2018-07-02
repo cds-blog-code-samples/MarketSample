@@ -47,17 +47,27 @@ contract TestSupplyChain {
     }
 
     function testUserDoesNotPaysTheRightPrice() public payable {
+        putItemForSale();
         uint sku = 0;
+
+        // Need to differentiate buyer and seller
+        // this seems like transferring to self
+        // how to do this in solidity?
+
         bool result = address(chain).call.value(0)(abi.encodeWithSignature("buyItem(uint)", sku));
         Assert.isFalse(result, "under Paid for item");
     }
 
 
     function testUserPaysTheRightPrice() public {
-        SupplyChain supplyChain = SupplyChain(DeployedAddresses.SupplyChain());
         putItemForSale();
         uint sku = 0;
-        bool result = address(supplyChain).call.value(itemPrice)(abi.encodeWithSignature("buyItem(uint)", sku));
+
+        // Need to differentiate buyer and seller
+        // this seems like transferring to self
+        // how to do this in solidity?
+
+        bool result = address(chain).call.value(itemPrice+1)(abi.encodeWithSignature("buyItem(uint)", sku));
         Assert.isTrue(result, "Paid the correct price...");
     }
 
