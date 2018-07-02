@@ -53,21 +53,22 @@ contract TestSupplyChain {
         // Need to differentiate buyer and seller
         // this seems like transferring to self
         // how to do this in solidity?
-
-        bool result = address(chain).call.value(0)(abi.encodeWithSignature("buyItem(uint)", sku));
+        uint offer = itemPrice - 1; // low ball price
+        // bool result = address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint)", sku));
+        bool result = address(chain).call.value(offer)(bytes4(bytes32(keccak256("buyItem(uint)", sku))));
         Assert.isFalse(result, "under Paid for item");
     }
 
-
-    function testUserPaysTheRightPrice() public {
+    function testUserPaysTheRightPrice() public payable {
         putItemForSale();
         uint sku = 0;
 
         // Need to differentiate buyer and seller
         // this seems like transferring to self
         // how to do this in solidity?
-
-        bool result = address(chain).call.value(itemPrice+1)(abi.encodeWithSignature("buyItem(uint)", sku));
+        uint offer = itemPrice + 1; // exceed price
+        // bool result = address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint)", sku));
+        bool result = address(chain).call.value(offer)(bytes4(bytes32(keccak256("buyItem(uint)", sku))));
         Assert.isTrue(result, "Paid the correct price...");
     }
 
