@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 import "truffle/Assert.sol";
 import "truffle/DeployedAddresses.sol";
@@ -9,17 +9,20 @@ contract TestSupplyChain {
     uint public initialBalance = 1 ether;
     SupplyChain public chain;
 
+    string itemName = "Gem";
+    uint   itemPrice = 3;
+
+    function() public payable {}
+
     function beforeEach() public
     {
         chain = new SupplyChain();
+        chain.addItem(itemName, itemPrice);
     }
 
     // Test for failing conditions in this contracts
     // test that every modifier is working
     function testItemCanBePutOnSale() public {
-        string memory itemName = "Gem";
-        uint   itemPrice = 3;
-        chain.addItem(itemName, itemPrice);
 
         uint expectedState = 0; // 0: Sale
         uint expectedSku = 0;
@@ -33,7 +36,7 @@ contract TestSupplyChain {
         address seller;
         address buyer;
 
-        ( name, sku, price, state, seller, buyer) = chain.fetchItem(expectedSku); // the first item
+        ( name, sku, price, state, seller, buyer) = chain.fetchItem(expectedSku);
 
         Assert.equal(sku, expectedSku, "Item sku is correct");
         Assert.equal(name, itemName, "Item is named correctly");
@@ -43,11 +46,9 @@ contract TestSupplyChain {
         Assert.equal(seller, expectedSeller, "Item seller is me");
     }
 
-    function testUserDoesNotPaysTheRightPrice() public payable {
-        string memory itemName = "Gem";
-        uint   itemPrice = 3;
-        chain.addItem(itemName, itemPrice);
-
+    // buyItem
+    // test for failure if user does not send enough funds
+    function testUserDoesNotPaysTheRightPrice() public {
         uint sku = 0;
         uint offer = itemPrice - 1; // low ball price
 
@@ -55,26 +56,61 @@ contract TestSupplyChain {
         Assert.isFalse(result, "under Paid for item");
     }
 
-    function testUserPaysTheRightPrice() public payable {
-        string memory itemName = "Gem";
-        uint   itemPrice = 3;
-        chain.addItem(itemName, itemPrice);
-
+    // buyItem
+    // test for purchasing an item that is not for Sale
+    function testUserPaysTheRightPrice() public {
         uint sku = 0;
         uint offer = itemPrice + 1; // low ball price
         bool result = address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
         Assert.isTrue(result, "Paid the correct price...");
     }
 
-    // buyItem
+    // shipItem
+    // Non seller cannot ship
+    function testDoesNotShipWhenCallerNotSeller() public {
+        uint sku = 0;
 
-    // test for failure if user does not send enough funds
-    // test for purchasing an item that is not for Sale
+        // Purchase item
+        uint offer = itemPrice + 1; // low ball price
+        address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
 
+        Proxy proxy = new Proxy(chain);
+
+        // Use the proxy contract address as msg.sender
+        // todo: what's the difference in using callcode?
+        bool result = address(proxy).delegatecall(abi.encodeWithSignature("ship(uint256)", sku));
+        Assert.isFalse(result, "Non seller cannot ship");
+    }
 
     // shipItem
+    // only seller can ship
+    function testShipWhenCalledBySeller() public {
+        uint expectedSku = 0;
 
-    // test for calls that are made by not the seller
+        // Purchase item
+        uint offer = itemPrice + 1; // low ball price
+        address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
+
+        // try to ship item
+        bool result = address(chain).call(abi.encodeWithSignature("shipItem(uint256)", expectedSku));
+        Assert.isTrue(result, "Only seller can ship");
+
+        // verify state is Shipped
+        uint expectedState = 2; // 2: Shipped
+
+        string memory name;
+        uint sku;
+        uint price;
+        uint state;
+        address seller;
+        address buyer;
+
+        ( name, sku, price, state, seller, buyer) = chain.fetchItem(expectedSku);
+        Assert.equal(state, expectedState, "Item State is `For sale`");
+    }
+
+
+
     // test for trying to ship an item that is not marked Sold
 
     // receiveItem
@@ -82,5 +118,19 @@ contract TestSupplyChain {
     // test calling the function from an address that is not the buyer
     // test calling the function on an item not marked Shipped
 
-    function() public payable {}
+}
+
+
+// Proxy object to act as buyer and seller
+//
+contract Proxy {
+    address public target;
+
+    constructor(address _target) public {
+        target = _target;
+    }
+
+    function ship(uint sku) public {
+        SupplyChain(target).shipItem(sku);
+    }
 }
