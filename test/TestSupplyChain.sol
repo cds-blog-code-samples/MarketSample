@@ -52,6 +52,7 @@ contract TestSupplyChain {
         uint sku = 0;
         uint offer = itemPrice - 1; // low ball price
 
+        // solhint-disable-next-line
         bool result = address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
         Assert.isFalse(result, "under Paid for item");
     }
@@ -60,7 +61,9 @@ contract TestSupplyChain {
     // test for purchasing an item that is not for Sale
     function testUserPaysTheRightPrice() public {
         uint sku = 0;
-        uint offer = itemPrice + 1; // low ball price
+        uint offer = itemPrice + 1; // exceed price
+
+        // solhint-disable-next-line
         bool result = address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
         Assert.isTrue(result, "Paid the correct price...");
     }
@@ -71,7 +74,9 @@ contract TestSupplyChain {
         uint sku = 0;
 
         // Purchase item
-        uint offer = itemPrice + 1; // low ball price
+        uint offer = itemPrice + 1; // exceed price
+
+        // solhint-disable-next-line
         address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
 
         Proxy proxy = new Proxy(chain);
@@ -88,7 +93,9 @@ contract TestSupplyChain {
         uint expectedSku = 0;
 
         // Purchase item
-        uint offer = itemPrice + 1; // low ball price
+        uint offer = itemPrice + 1; // exceed price
+
+        // solhint-disable-next-line
         address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
 
         // try to ship item
