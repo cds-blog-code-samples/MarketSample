@@ -113,12 +113,33 @@ contract TestSupplyChain {
         address buyer;
 
         ( name, sku, price, state, seller, buyer) = chain.fetchItem(expectedSku);
-        Assert.equal(state, expectedState, "Item State is `For sale`");
+        Assert.equal(state, expectedState, "Item State is `Shipped`");
     }
 
-
-
+    // shipItem
     // test for trying to ship an item that is not marked Sold
+    function testCannotShipAnItemThatIsNotSold() public {
+        uint expectedSku = 0;
+
+        // item is in forSale state
+
+        // try to ship item
+        bool result = address(chain).call(abi.encodeWithSignature("shipItem(uint256)", expectedSku));
+        Assert.isFalse(result, "Cannot ship item not sold.");
+
+        // verify state is Shipped
+        uint expectedState = 0; // 2: ForSale
+
+        string memory name;
+        uint sku;
+        uint price;
+        uint state;
+        address seller;
+        address buyer;
+
+        ( name, sku, price, state, seller, buyer) = chain.fetchItem(expectedSku);
+        Assert.equal(state, expectedState, "Item State is `For sale`");
+    }
 
     // receiveItem
 
