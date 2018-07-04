@@ -7,33 +7,51 @@ import "../contracts/SupplyChain.sol";
 
 contract TestSupplyChain {
     uint public initialBalance = 1 ether;
+
     SupplyChain public chain;
-    Proxy public sellGuy;
-    Proxy public buyGuy;
+    Proxy public sellActor;
+    Proxy public buyActor;
+    Proxy public randomActor;
+
+    enum State { ForSale, Sold, Shipped, Received }
 
     string itemName = "Gem";
-    uint   itemPrice = 3;
+    uint256 itemPrice = 3;
+    uint256 itemSku = 0; // the sku will be set to 0
 
+    // allow contract to receive ether
     function() public payable {}
 
     function beforeEach() public
     {
+        // Contract to test
         chain = new SupplyChain();
-        sellGuy = new Proxy(chain);
-        buyGuy = new Proxy(chain);
-        sellGuy.sell(itemName, itemPrice);
-        // does contracthsve fund?
-        buyGuy.transfer(4);
+
+        // Sell transaction actor
+        sellActor = new Proxy(chain);
+
+        // Buy transaction actor
+        buyActor = new Proxy(chain);
+
+        // Random transaction actor, neither buyer or seller
+        randomActor = new Proxy(chain);
+
+        // Seed buyer with some funds
+        // Note: these values are in wei
+        uint256 seedValue = itemPrice + 1;
+        address(buyActor).transfer(seedValue);
+
+        // Seed known item to set contract to `for-sale`
+        sellActor.sell(itemName, itemPrice);
     }
 
-    // Test for failing conditions in this contracts
-    // test that every modifier is working
-    function testItemCanBePutOnSale() public {
-
-        uint expectedState = 0; // 0: Sale
-        uint expectedSku = 0;
+    function testItemCanBePutOnSale()
+        public
+    {
+        // Verify state is `ForSale`
+        uint expectedState = uint256(State.ForSale);
         address expectedBuyer = address(0);
-        address expectedSeller = address(sellGuy);
+        address expectedSeller = address(sellActor);
 
         string memory name;
         uint sku;
@@ -42,9 +60,9 @@ contract TestSupplyChain {
         address seller;
         address buyer;
 
-        ( name, sku, price, state, seller, buyer) = chain.fetchItem(expectedSku);
+        ( name, sku, price, state, seller, buyer) = chain.fetchItem(itemSku);
 
-        Assert.equal(sku, expectedSku, "Item sku is correct");
+        Assert.equal(sku, itemSku, "Item sku is correct");
         Assert.equal(name, itemName, "Item is named correctly");
         Assert.equal(price, itemPrice, "Item price correctly");
         Assert.equal(state, expectedState, "Item State is `For sale`");
@@ -52,9 +70,8 @@ contract TestSupplyChain {
         Assert.equal(seller, expectedSeller, "Item seller is the seller`");
     }
 
-
     function getItemState(uint256 _expectedSku)
-        public
+        public constant
         returns (uint256)
     {
         string memory name;
@@ -71,133 +88,171 @@ contract TestSupplyChain {
     // buyItem
     // test for failure if user does not send enough funds
     function testUserDoesNotPaysTheRightPrice() public {
-        uint sku = 0;
-        uint offer = itemPrice - 1; // low ball price
+        uint offer = itemPrice - 1; // underfund price
 
-        bool result = buyGuy.buy(sku, offer);
+        bool result = buyActor.buy(itemSku, offer);
         Assert.isFalse(result, "under Paid for item");
 
         // Verify state is For Sale
-        uint expectedState = 0; // For Sale
-        Assert.equal(getItemState(sku), expectedState, "Item should be `for sale`");
+        uint expectedState = uint256(State.ForSale);
+        Assert.equal(getItemState(itemSku), expectedState, "Item should be `for sale`");
     }
 
     // buyItem
     // test for purchasing an item that is not for Sale
     function testUserPaysTheRightPrice() public {
-        uint sku = 0;
         uint offer = itemPrice + 1; // exceed price
 
-        // solhint-disable-next-line
-        bool result = buyGuy.buy(sku, offer);
-        Assert.isFalse(result, "Paid the correct price...");
+        Assert.notEqual(address(buyActor), address(sellActor), "buyer and seller should be different");
+        Assert.equal(address(chain), sellActor.getTarget(), "chain is the target");
+
+        bool result = buyActor.buy(itemSku, offer);
+        Assert.isTrue(result, "Paid the correct price...");
 
         // Verify state is Sold
-        uint expectedState = 1; // Sold
-        Assert.equal(getItemState(sku), expectedState, "Item should be `Sold`");
+        uint expectedState = uint256(State.Sold);
+        Assert.equal(getItemState(itemSku), expectedState, "Item should be `Sold`");
     }
 
     // shipItem
     // Non seller cannot ship
-    function _testDoesNotShipWhenCallerNotSeller() public {
-        uint sku = 0;
+    function testRandomUserCannotShipItem() public {
 
         // Purchase item
         uint offer = itemPrice + 1; // exceed price
+        bool result = buyActor.buy(itemSku, offer);
+        Assert.isTrue(result, "Paid the correct price...");
 
-        // solhint-disable-next-line
-        address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
-
-        // Use the proxy contract address as msg.sender
-        // todo: what's the difference in using callcode?
-        bool result = address(buyGuy).delegatecall(abi.encodeWithSignature("ship(uint256)", sku));
+        result = randomActor.ship(itemSku);
         Assert.isFalse(result, "Non seller cannot ship");
 
-        // Verify state remains Sold
-        uint expectedState = 1; // Sold
-        // Assert.isTrue(validateCurrentSkuState(sku, expectedState), "Item should be `Sold`");
+        // Verify state is Sold
+        uint expectedState = uint256(State.Sold);
+        Assert.equal(getItemState(itemSku), expectedState, "Item should remain `Sold`");
     }
 
     // shipItem
-    // only seller can ship
-    function _testShipWhenCalledBySeller() public {
-        uint sku = 0;
-
+    // seller can ship
+    function testSellerCanShipItem() public {
         // Purchase item
         uint offer = itemPrice + 1; // exceed price
+        bool result = buyActor.buy(itemSku, offer);
+        Assert.isTrue(result, "Paid the correct price...");
 
-        // solhint-disable-next-line
-        address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
-
-        // Try to ship item
-        bool result = address(chain).call(abi.encodeWithSignature("shipItem(uint256)", sku));
-        Assert.isTrue(result, "Only seller can ship");
+        result = sellActor.ship(itemSku);
+        Assert.isTrue(result, "seller should be able to ship");
 
         // Verify state is Shipped
-        uint expectedState = 2; // Shipped
-        // Assert.isTrue(validateCurrentSkuState(sku, expectedState), "Item is `Shipped`");
+        uint expectedState = uint256(State.Shipped);
+        Assert.equal(getItemState(itemSku), expectedState, "Item should remain `Shipped`");
     }
 
     // shipItem
     // test for trying to ship an item that is not marked Sold
-    function _testCannotShipAnItemThatIsNotSold() public {
-        uint sku = 0;
+    function testCannotShipAnItemThatIsNotSold() public {
         // Note: item starts in forSale state
 
         // Try to ship item
-        bool result = address(chain).call(abi.encodeWithSignature("shipItem(uint256)", sku));
+        bool result = sellActor.ship(itemSku);
         Assert.isFalse(result, "Cannot ship item not sold.");
 
-        // Verify state is For Sale
-        uint expectedState = 0; // For Sale
-        // Assert.isTrue(validateCurrentSkuState(sku, expectedState), "Item should be `for sale`");
+        // Verify state is ForSale
+        uint expectedState = uint256(State.ForSale);
+        Assert.equal(getItemState(itemSku), expectedState, "Item should remain `ForSale`");
     }
 
     // receiveItem
     // test calling the function from an address that is not the buyer
-    function _testFailsToSetReceiveWhenInvokedBySomeoneNotTheBuyer() public {
-        uint sku = 0;
-        bool result;
-
+    function testNonBuyerCannotSetItemAsReceived() public {
         // Purchase item
         uint offer = itemPrice + 1; // exceed price
+        bool result = buyActor.buy(itemSku, offer);
+        Assert.isTrue(result, "Paid the correct price...");
 
-        // Use the proxy contract address as msg.sender
-        // todo: what's the difference in using callcode?
-        result = address(buyGuy).delegatecall(abi.encodeWithSignature("buy(uint256)", sku, offer));
-        Assert.isFalse(result, "Non seller cannot ship");
-
-        chain.shipItem(sku);
+        // Ship item
+        result = sellActor.ship(itemSku);
+        Assert.isTrue(result, "Seller can ship item sold.");
 
         // Try to receive item
-        result = address(chain).call(abi.encodeWithSignature("receiveItem(uint256)", sku));
+        result = randomActor.receive(itemSku);
         Assert.isFalse(result, "Only buyer should set receive");
 
         // Verify state is Shipped
-        uint expectedState = 2; // Shipped
-        // Assert.isTrue(validateCurrentSkuState(sku, expectedState), "Item is `Shipped`");
+        uint expectedState = uint256(State.Shipped);
+        Assert.equal(getItemState(itemSku), expectedState, "Item should remain `Shipped`");
     }
 
+    // receiveItem
+    // test buyer can set item received
+    function testBuyerCanSetItemAsReceived() public {
+        // Purchase item
+        uint offer = itemPrice + 1; // exceed price
+        bool result = buyActor.buy(itemSku, offer);
+        Assert.isTrue(result, "Paid the correct price...");
+
+        // Ship item
+        result = sellActor.ship(itemSku);
+        Assert.isTrue(result, "Seller can ship item sold.");
+
+        // Try to receive item
+        result = buyActor.receive(itemSku);
+        Assert.isTrue(result, "Buyer can set receive");
+
+        // Verify state is Shipped
+        uint expectedState = uint256(State.Received);
+        Assert.equal(getItemState(itemSku), expectedState, "Item should be `Received`");
+    }
 
     // receiveItem
     // test calling the function on an item not marked Shipped
+    function testBuyerCannotReceiveItemNotShipped() public {
+        // Purchase item
+        uint offer = itemPrice + 1; // exceed price
+        bool result = buyActor.buy(itemSku, offer);
+        Assert.isTrue(result, "Paid the correct price...");
 
+        // Try to receive item
+        result = buyActor.receive(itemSku);
+        Assert.isFalse(result, "Buyer can set receive");
+
+        // Verify state is Shipped
+        uint expectedState = uint256(State.Sold);
+        Assert.equal(getItemState(itemSku), expectedState, "Item should be `Sold`");
+    }
 }
 
 
-// Proxy object to act as buyer and seller
+// Proxy contract Actors for buying and selling
 //
 contract Proxy {
+    // Todo: can every contract be initialized with ether?
     address public target;
 
+    // Allow contract to receive ether
     function() public payable {}
 
-    constructor(address _target) public {
+    constructor(address _target)
+        public
+    {
         target = _target;
     }
 
-    function sell(string _itemName, uint256 _itemPrice) public {
-        // solhint-disable-next-line
+    function getTarget()
+        public constant
+        returns (address)
+    {
+        return target;
+    }
+
+    function testBoilerplate()
+        public
+    {
+        Assert.isTrue(true, "math works");
+    }
+
+    function sell(string _itemName, uint256 _itemPrice)
+        public
+    {
         SupplyChain(target).addItem(_itemName, _itemPrice);
     }
 
@@ -215,5 +270,13 @@ contract Proxy {
     {
         // solhint-disable-next-line
         return address(target).call(abi.encodeWithSignature("shipItem(uint256)", sku));
+    }
+
+    function receive(uint256 sku)
+        public
+        returns (bool)
+    {
+        // solhint-disable-next-line
+        return address(target).call(abi.encodeWithSignature("receiveItem(uint256)", sku));
     }
 }
