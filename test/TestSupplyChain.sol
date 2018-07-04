@@ -8,9 +8,8 @@ import "../contracts/SupplyChain.sol";
 contract TestSupplyChain {
     uint public initialBalance = 1 ether;
     SupplyChain public chain;
-    Seller public seller;
-    Buyer public buyer;
-    bool initialized;
+    Proxy public sellGuy;
+    Proxy public buyGuy;
 
     string itemName = "Gem";
     uint   itemPrice = 3;
@@ -20,9 +19,9 @@ contract TestSupplyChain {
     function beforeEach() public
     {
         chain = new SupplyChain();
-        seller = new Seller(chain);
-        buyer = new Buyer(chain);
-        initialized = address(seller).delegatecall(abi.encodeWithSignature("sell(string, uint256)", itemName, itemPrice));
+        sellGuy = new Proxy(chain);
+        buyGuy = new Proxy(chain);
+        sellGuy.sell(itemName, itemPrice);
     }
 
     // Test for failing conditions in this contracts
@@ -32,9 +31,7 @@ contract TestSupplyChain {
         uint expectedState = 0; // 0: Sale
         uint expectedSku = 0;
         address expectedBuyer = address(0);
-        address expectedSeller = address(seller);
-
-        Assert.isTrue(initialized, "Market should be initialized");
+        address expectedSeller = address(sellGuy);
 
         string memory name;
         uint sku;
@@ -71,12 +68,11 @@ contract TestSupplyChain {
 
     // buyItem
     // test for failure if user does not send enough funds
-    function _testUserDoesNotPaysTheRightPrice() public {
+    function testUserDoesNotPaysTheRightPrice() public {
         uint sku = 0;
         uint offer = itemPrice - 1; // low ball price
 
-        // solhint-disable-next-line
-        bool result = address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
+        bool result = buyGuy.buy(sku, offer);
         Assert.isFalse(result, "under Paid for item");
 
         // Verify state is For Sale
@@ -86,12 +82,12 @@ contract TestSupplyChain {
 
     // buyItem
     // test for purchasing an item that is not for Sale
-    function _testUserPaysTheRightPrice() public {
+    function testUserPaysTheRightPrice() public {
         uint sku = 0;
         uint offer = itemPrice + 1; // exceed price
 
         // solhint-disable-next-line
-        bool result = address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
+        bool result = buyGuy.buy(sku, offer);
         Assert.isTrue(result, "Paid the correct price...");
 
         // Verify state is Sold
@@ -110,11 +106,9 @@ contract TestSupplyChain {
         // solhint-disable-next-line
         address(chain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
 
-        Buyer buyer = new Buyer(chain);
-
         // Use the proxy contract address as msg.sender
         // todo: what's the difference in using callcode?
-        bool result = address(buyer).delegatecall(abi.encodeWithSignature("ship(uint256)", sku));
+        bool result = address(buyGuy).delegatecall(abi.encodeWithSignature("ship(uint256)", sku));
         Assert.isFalse(result, "Non seller cannot ship");
 
         // Verify state remains Sold
@@ -162,14 +156,13 @@ contract TestSupplyChain {
     function _testFailsToSetReceiveWhenInvokedBySomeoneNotTheBuyer() public {
         uint sku = 0;
         bool result;
-        Seller buyer = new Seller(chain);
 
         // Purchase item
         uint offer = itemPrice + 1; // exceed price
 
         // Use the proxy contract address as msg.sender
         // todo: what's the difference in using callcode?
-        result = address(buyer).delegatecall(abi.encodeWithSignature("buy(uint256)", sku, offer));
+        result = address(buyGuy).delegatecall(abi.encodeWithSignature("buy(uint256)", sku, offer));
         Assert.isFalse(result, "Non seller cannot ship");
 
         chain.shipItem(sku);
@@ -192,8 +185,10 @@ contract TestSupplyChain {
 
 // Proxy object to act as buyer and seller
 //
-contract Seller {
+contract Proxy {
     address public target;
+
+    function() public payable {}
 
     constructor(address _target) public {
         target = _target;
@@ -201,40 +196,22 @@ contract Seller {
 
     function sell(string _itemName, uint _itemPrice) public {
         // solhint-disable-next-line
-        bool result = address(target).call(abi.encodeWithSignature("addItem(string, uint256)", _itemName, _itemPrice));
-        assert(result == true);
-        // SupplyChain(target).addItem(_itemName, _itemPrice);
+        SupplyChain(target).addItem(_itemName, _itemPrice);
     }
 
-    function buy(uint sku, uint offer) public {
+    function buy(uint sku, uint offer)
+        public
+        returns (bool)
+    {
         // solhint-disable-next-line
-        address(target).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
+        return address(target).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
     }
 
-    function ship(uint sku) public {
-        SupplyChain(target).shipItem(sku);
-    }
-}
-
-contract Buyer {
-    address public target;
-
-    constructor(address _target) public {
-        target = _target;
-    }
-
-    function sell(string _itemName, uint _itemPrice) public {
+    function ship(uint sku)
+        public
+        returns (bool)
+    {
         // solhint-disable-next-line
-        // address(target).call(abi.encodeWithSignature("addItem(string, uint256)", "Gem", 3));
-        SupplyChain(target).addItem("Gem", 3);
-    }
-
-    function buy(uint sku, uint offer) public {
-        // solhint-disable-next-line
-        address(target).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
-    }
-
-    function ship(uint sku) public {
-        SupplyChain(target).shipItem(sku);
+        return address(target).call(abi.encodeWithSignature("shipItem(uint256)", sku));
     }
 }
