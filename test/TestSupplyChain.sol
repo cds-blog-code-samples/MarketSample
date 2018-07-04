@@ -243,12 +243,6 @@ contract Proxy {
         return target;
     }
 
-    function testBoilerplate()
-        public
-    {
-        Assert.isTrue(true, "math works");
-    }
-
     function sell(string _itemName, uint256 _itemPrice)
         public
     {
