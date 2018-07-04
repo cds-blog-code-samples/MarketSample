@@ -48,6 +48,13 @@ contract TestSupplyChain {
         sellActor.sell(itemName, itemPrice);
     }
 
+    function testBuyerAndSellerAreDifferentActors()
+        public
+    {
+        Assert.notEqual(address(buyActor), address(sellActor), "buyer and seller should be different");
+        Assert.equal(address(chain), sellActor.getTarget(), "chain is the target");
+    }
+
     function testItemCanBePutOnSale()
         public
     {
@@ -89,7 +96,7 @@ contract TestSupplyChain {
     }
 
     // buyItem
-    // test for failure if user does not send enough funds
+    // test buyer tries to underpay
     function testUserDoesNotPaysTheRightPrice() public {
         uint offer = itemPrice - 1; // underfund price
 
@@ -102,12 +109,9 @@ contract TestSupplyChain {
     }
 
     // buyItem
-    // test for purchasing an item that is not for Sale
+    // test buyer pays the ask price
     function testUserPaysTheRightPrice() public {
         uint offer = itemPrice + 1; // exceed price
-
-        Assert.notEqual(address(buyActor), address(sellActor), "buyer and seller should be different");
-        Assert.equal(address(chain), sellActor.getTarget(), "chain is the target");
 
         bool result = buyActor.buy(itemSku, offer);
         Assert.isTrue(result, "Paid the correct price...");
@@ -118,7 +122,7 @@ contract TestSupplyChain {
     }
 
     // shipItem
-    // Non seller cannot ship
+    // test some random user cannot Ship item
     function testRandomUserCannotShipItem() public {
 
         // Purchase item
@@ -135,7 +139,7 @@ contract TestSupplyChain {
     }
 
     // shipItem
-    // seller can ship
+    // test seller can ship item
     function testSellerCanShipItem() public {
         // Purchase item
         uint offer = itemPrice + 1; // exceed price
@@ -151,7 +155,7 @@ contract TestSupplyChain {
     }
 
     // shipItem
-    // test for trying to ship an item that is not marked Sold
+    // test that items can't be shipped if they are not sold
     function testCannotShipAnItemThatIsNotSold() public {
         // Note: item starts in forSale state
 
@@ -165,7 +169,7 @@ contract TestSupplyChain {
     }
 
     // receiveItem
-    // test calling the function from an address that is not the buyer
+    // test some random actor cannot receive item
     function testNonBuyerCannotSetItemAsReceived() public {
         // Purchase item
         uint offer = itemPrice + 1; // exceed price
@@ -186,7 +190,7 @@ contract TestSupplyChain {
     }
 
     // receiveItem
-    // test buyer can set item received
+    // test buyer can receive item
     function testBuyerCanSetItemAsReceived() public {
         // Purchase item
         uint offer = itemPrice + 1; // exceed price
@@ -207,7 +211,7 @@ contract TestSupplyChain {
     }
 
     // receiveItem
-    // test calling the function on an item not marked Shipped
+    // test a buyer cannot recieve an item not shipped
     function testBuyerCannotReceiveItemNotShipped() public {
         // Purchase item
         uint offer = itemPrice + 1; // exceed price
