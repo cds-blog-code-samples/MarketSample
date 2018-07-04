@@ -13,6 +13,9 @@ contract TestSupplyChain {
     Proxy public buyActor;
     Proxy public randomActor;
 
+    // A fragile dependency here.  Would be nice to import this from a contract
+    // This has to continuously stay synced with the contract being tested
+    //
     enum State { ForSale, Sold, Shipped, Received }
 
     string itemName = "Gem";
@@ -33,7 +36,7 @@ contract TestSupplyChain {
         // Buy transaction actor
         buyActor = new Proxy(chain);
 
-        // Random transaction actor, neither buyer or seller
+        // Random transaction actor, neither buyer nor seller
         randomActor = new Proxy(chain);
 
         // Seed buyer with some funds
@@ -228,14 +231,10 @@ contract Proxy {
     // Todo: can every contract be initialized with ether?
     address public target;
 
+    constructor(address _target) public { target = _target; }
+
     // Allow contract to receive ether
     function() public payable {}
-
-    constructor(address _target)
-        public
-    {
-        target = _target;
-    }
 
     function getTarget()
         public constant
