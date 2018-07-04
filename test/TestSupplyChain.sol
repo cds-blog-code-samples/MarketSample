@@ -59,7 +59,6 @@ contract TestSupplyChain {
         public
     {
         // Verify state is `ForSale`
-        uint expectedState = uint256(State.ForSale);
         address expectedBuyer = address(0);
         address expectedSeller = address(sellActor);
 
@@ -75,7 +74,7 @@ contract TestSupplyChain {
         Assert.equal(sku, itemSku, "Item sku is correct");
         Assert.equal(name, itemName, "Item is named correctly");
         Assert.equal(price, itemPrice, "Item price correctly");
-        Assert.equal(state, expectedState, "Item State is `For sale`");
+        Assert.equal(state, uint256(State.ForSale), "Item State is `For sale`");
         Assert.equal(buyer, expectedBuyer, "Item buyer is 0x0");
         Assert.equal(seller, expectedSeller, "Item seller is the seller`");
     }
@@ -104,8 +103,7 @@ contract TestSupplyChain {
         Assert.isFalse(result, "under Paid for item");
 
         // Verify state is For Sale
-        uint expectedState = uint256(State.ForSale);
-        Assert.equal(getItemState(itemSku), expectedState, "Item should be `for sale`");
+        Assert.equal(getItemState(itemSku), uint256(State.ForSale), "Item should be `ForSale`");
     }
 
     // buyItem
@@ -117,8 +115,7 @@ contract TestSupplyChain {
         Assert.isTrue(result, "Paid the correct price...");
 
         // Verify state is Sold
-        uint expectedState = uint256(State.Sold);
-        Assert.equal(getItemState(itemSku), expectedState, "Item should be `Sold`");
+        Assert.equal(getItemState(itemSku), uint256(State.Sold), "Item should be `Sold`");
     }
 
     // shipItem
@@ -134,8 +131,7 @@ contract TestSupplyChain {
         Assert.isFalse(result, "Non seller cannot ship");
 
         // Verify state is Sold
-        uint expectedState = uint256(State.Sold);
-        Assert.equal(getItemState(itemSku), expectedState, "Item should remain `Sold`");
+        Assert.equal(getItemState(itemSku), uint256(State.Sold), "Item should remain `Sold`");
     }
 
     // shipItem
@@ -150,8 +146,7 @@ contract TestSupplyChain {
         Assert.isTrue(result, "seller should be able to ship");
 
         // Verify state is Shipped
-        uint expectedState = uint256(State.Shipped);
-        Assert.equal(getItemState(itemSku), expectedState, "Item should remain `Shipped`");
+        Assert.equal(getItemState(itemSku), uint256(State.Shipped), "Item should be `Shipped`");
     }
 
     // shipItem
@@ -161,11 +156,10 @@ contract TestSupplyChain {
 
         // Try to ship item
         bool result = sellActor.ship(itemSku);
-        Assert.isFalse(result, "Cannot ship item not sold.");
+        Assert.isFalse(result, "Cannot ship item that is `ForSale`.");
 
         // Verify state is ForSale
-        uint expectedState = uint256(State.ForSale);
-        Assert.equal(getItemState(itemSku), expectedState, "Item should remain `ForSale`");
+        Assert.equal(getItemState(itemSku), uint256(State.ForSale), "Item should remain `ForSale`");
     }
 
     // receiveItem
@@ -178,15 +172,14 @@ contract TestSupplyChain {
 
         // Ship item
         result = sellActor.ship(itemSku);
-        Assert.isTrue(result, "Seller can ship item sold.");
+        Assert.isTrue(result, "Seller can ship item that was sold.");
 
         // Try to receive item
         result = randomActor.receive(itemSku);
-        Assert.isFalse(result, "Only buyer should set receive");
+        Assert.isFalse(result, "Only buyer can receive an item");
 
         // Verify state is Shipped
-        uint expectedState = uint256(State.Shipped);
-        Assert.equal(getItemState(itemSku), expectedState, "Item should remain `Shipped`");
+        Assert.equal(getItemState(itemSku), uint256(State.Shipped), "Item should remain `Shipped`");
     }
 
     // receiveItem
@@ -199,15 +192,14 @@ contract TestSupplyChain {
 
         // Ship item
         result = sellActor.ship(itemSku);
-        Assert.isTrue(result, "Seller can ship item sold.");
+        Assert.isTrue(result, "Seller can ship item that was sold.");
 
         // Try to receive item
         result = buyActor.receive(itemSku);
         Assert.isTrue(result, "Buyer can set receive");
 
         // Verify state is Shipped
-        uint expectedState = uint256(State.Received);
-        Assert.equal(getItemState(itemSku), expectedState, "Item should be `Received`");
+        Assert.equal(getItemState(itemSku), uint256(State.Received), "Item should be `Received`");
     }
 
     // receiveItem
@@ -220,11 +212,10 @@ contract TestSupplyChain {
 
         // Try to receive item
         result = buyActor.receive(itemSku);
-        Assert.isFalse(result, "Buyer can set receive");
+        Assert.isFalse(result, "Buyer can not receive an item thats `sold`");
 
-        // Verify state is Shipped
-        uint expectedState = uint256(State.Sold);
-        Assert.equal(getItemState(itemSku), expectedState, "Item should be `Sold`");
+        // Verify state is Sold
+        Assert.equal(getItemState(itemSku), uint256(State.Sold), "Item should be `Sold`");
     }
 }
 
@@ -232,7 +223,6 @@ contract TestSupplyChain {
 // Proxy contract Actors for buying and selling
 //
 contract Proxy {
-    // Todo: can every contract be initialized with ether?
     address public target;
 
     constructor(address _target) public { target = _target; }
@@ -247,10 +237,10 @@ contract Proxy {
         return target;
     }
 
-    function sell(string _itemName, uint256 _itemPrice)
+    function sell(string itemName, uint256 itemPrice)
         public
     {
-        SupplyChain(target).addItem(_itemName, _itemPrice);
+        SupplyChain(target).addItem(itemName, itemPrice);
     }
 
     function buy(uint256 sku, uint256 offer)
