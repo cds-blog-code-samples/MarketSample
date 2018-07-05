@@ -227,8 +227,8 @@ contract Proxy {
 
     constructor(address _target) public { target = _target; }
 
-    // Allow contract to receive ether
-    function() public payable {}
+    // solhint-disable-next-line
+    function() public payable {} // gimme ether
 
     function getTarget()
         public constant
