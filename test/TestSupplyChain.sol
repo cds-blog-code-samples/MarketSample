@@ -2,21 +2,17 @@ pragma solidity ^0.4.24;
 
 import "truffle/Assert.sol";
 import "truffle/DeployedAddresses.sol";
+import "../contracts/SupplyChainState.sol";
 import "../contracts/SupplyChain.sol";
 
 
-contract TestSupplyChain {
+contract TestSupplyChain is SupplyChainState {
     uint public initialBalance = 1 ether;
 
     SupplyChain public chain;
     Proxy public sellActor;
     Proxy public buyActor;
     Proxy public randomActor;
-
-    // A fragile dependency here.  Would be nice to import this from a contract
-    // This has to continuously stay synced with the contract being tested
-    //
-    enum State { ForSale, Sold, Shipped, Received }
 
     string itemName = "Gem";
     uint256 itemPrice = 3;

@@ -1,13 +1,12 @@
 pragma solidity ^0.4.24;
+import "./SupplyChainState.sol";
 
 
-contract SupplyChain {
+contract SupplyChain is SupplyChainState {
 
     address owner;
     uint skuCount;
     mapping (uint => Item) public items;
-
-    enum State { ForSale, Sold, Shipped, Received }
 
     struct Item {
         string name;
