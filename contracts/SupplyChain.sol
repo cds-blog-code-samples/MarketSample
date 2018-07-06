@@ -46,7 +46,6 @@ contract SupplyChain is SupplyChainState {
     }
 
     modifier forSale(uint _sku) {
-        State state = items[_sku].state;
         require(items[_sku].state == State.ForSale);
         _;
     }
@@ -93,7 +92,6 @@ contract SupplyChain is SupplyChainState {
         items[sku].buyer = msg.sender;
         items[sku].seller.transfer(items[sku].price);
         emit Sold(sku);
-
     }
 
     function shipItem(uint sku)
