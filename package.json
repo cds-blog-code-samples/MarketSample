@@ -7,7 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "develop": "truffle develop"
+    "develop": "truffle develop",
+    "test": "truffle test"
   },
   "author": "Amal Sudama <cds.sudama@gmail.com>",
   "license": "ISC",
