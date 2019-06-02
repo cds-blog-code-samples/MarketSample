@@ -8,7 +8,9 @@
   },
   "scripts": {
     "develop": "truffle develop",
-    "test": "truffle test"
+    "test": "truffle test",
+    "test:js": "truffle test ./test/supply_chain.test.js",
+    "test:sol": "truffle test ./test/TestSupplyChain.sol"
   },
   "author": "Amal Sudama <cds.sudama@gmail.com>",
   "license": "ISC",
