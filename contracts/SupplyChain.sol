@@ -17,10 +17,10 @@ contract SupplyChain is SupplyChainState {
         address payable buyer;
     }
 
-    event ForSale(uint sku);
-    event Sold(uint sku);
-    event Shipped(uint sku);
-    event Received(uint sku);
+    event LogForSale(uint sku);
+    event LogSold(uint sku);
+    event LogShipped(uint sku);
+    event LogReceived(uint sku);
 
     modifier isOwner() {
         require(msg.sender == owner);
@@ -71,7 +71,7 @@ contract SupplyChain is SupplyChainState {
     }
 
     function addItem(string memory _name, uint _price) public {
-        emit ForSale(skuCount);
+        emit LogForSale(skuCount);
 
         items[skuCount] = Item({
             name: _name,
@@ -91,21 +91,21 @@ contract SupplyChain is SupplyChainState {
         items[sku].state = State.Sold;
         items[sku].buyer = msg.sender;
         items[sku].seller.transfer(items[sku].price);
-        emit Sold(sku);
+        emit LogSold(sku);
     }
 
     function shipItem(uint sku)
     public sold(sku) verifyCaller(items[sku].seller)
     {
         items[sku].state = State.Shipped;
-        emit Shipped(sku);
+        emit LogShipped(sku);
     }
 
     function receiveItem(uint sku)
     public shipped(sku) verifyCaller(items[sku].buyer)
     {
         items[sku].state = State.Received;
-        emit Received(sku);
+        emit LogReceived(sku);
     }
 
     // used for testing...
