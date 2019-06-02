@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity >= 0.5.0 < 0.6.0;
 
 import "truffle/Assert.sol";
 import "truffle/DeployedAddresses.sol";
@@ -19,7 +19,7 @@ contract TestSupplyChain is SupplyChainState {
     uint256 itemSku = 0; // the sku will be set to 0
 
     // allow contract to receive ether
-    function() public payable {}
+    function() external payable {}
 
     function beforeEach() public
     {
@@ -48,7 +48,7 @@ contract TestSupplyChain is SupplyChainState {
         public
     {
         Assert.notEqual(address(buyActor), address(sellActor), "buyer and seller should be different");
-        Assert.equal(address(chain), sellActor.getTarget(), "chain is the target");
+        Assert.equal(chain, sellActor.getTarget(), "chain is the target");
     }
 
     function testItemCanBePutOnSale()
@@ -76,7 +76,7 @@ contract TestSupplyChain is SupplyChainState {
     }
 
     function getItemState(uint256 _expectedSku)
-        public constant
+        public view
         returns (uint256)
     {
         string memory name;
@@ -219,21 +219,21 @@ contract TestSupplyChain is SupplyChainState {
 // Proxy contract Actors for buying and selling
 //
 contract Proxy {
-    address public target;
+    SupplyChain public target;
 
-    constructor(address _target) public { target = _target; }
+    constructor(SupplyChain _target) public { target = _target; }
 
     // Allow contract to receive ether
-    function() public payable {}
+    function() external payable {}
 
     function getTarget()
-        public constant
-        returns (address)
+        public view
+        returns (SupplyChain)
     {
         return target;
     }
 
-    function sell(string itemName, uint256 itemPrice)
+    function sell(string memory itemName, uint256 itemPrice)
         public
     {
         SupplyChain(target).addItem(itemName, itemPrice);

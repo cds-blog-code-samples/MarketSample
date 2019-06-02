@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity >= 0.5.0 < 0.6.0;
 import "./SupplyChainState.sol";
 
 
@@ -13,8 +13,8 @@ contract SupplyChain is SupplyChainState {
         uint sku;
         uint price;
         State state;
-        address seller;
-        address buyer;
+        address payable seller;
+        address payable buyer;
     }
 
     event ForSale(uint sku);
@@ -70,7 +70,7 @@ contract SupplyChain is SupplyChainState {
         skuCount = 0;
     }
 
-    function addItem(string _name, uint _price) public {
+    function addItem(string memory _name, uint _price) public {
         emit ForSale(skuCount);
 
         items[skuCount] = Item({
@@ -79,7 +79,7 @@ contract SupplyChain is SupplyChainState {
             price: _price,
             state: State.ForSale,
             seller: msg.sender,
-            buyer: 0
+            buyer: address(0)
         });
 
         skuCount = skuCount + 1;
@@ -111,7 +111,7 @@ contract SupplyChain is SupplyChainState {
     // used for testing...
     function fetchItem(uint _sku)
         public view
-        returns (string name, uint sku, uint price, uint state, address seller, address buyer)
+        returns (string memory name, uint sku, uint price, uint state, address seller, address buyer)
     {
         name = items[_sku].name;
         sku = items[_sku].sku;
