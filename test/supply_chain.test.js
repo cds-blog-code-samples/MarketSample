@@ -20,7 +20,7 @@ contract('SupplyChain', function(accounts) {
     })
 
     it("should add an item with the provided name and price", async() => {
-        const tx = await instance.addItem(name, price, {from: alice})
+        await instance.addItem(name, price, {from: alice})
 
         const result = await instance.fetchItem.call(0)
 
