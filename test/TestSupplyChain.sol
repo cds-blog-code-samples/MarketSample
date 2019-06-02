@@ -48,7 +48,7 @@ contract TestSupplyChain is SupplyChainState {
         public
     {
         Assert.notEqual(address(buyActor), address(sellActor), "buyer and seller should be different");
-        Assert.equal(chain, sellActor.getTarget(), "chain is the target");
+        Assert.equal(address(chain), address(sellActor.getTarget()), "chain is the target");
     }
 
     function testItemCanBePutOnSale()
@@ -236,30 +236,30 @@ contract Proxy {
     function sell(string memory itemName, uint256 itemPrice)
         public
     {
-        SupplyChain(target).addItem(itemName, itemPrice);
+        target.addItem(itemName, itemPrice);
     }
 
     function buy(uint256 sku, uint256 offer)
         public
         returns (bool)
     {
-        // solhint-disable-next-line
-        return address(target).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
+        (bool success, ) = address(target).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
+        return success;
     }
 
     function ship(uint256 sku)
         public
         returns (bool)
     {
-        // solhint-disable-next-line
-        return address(target).call(abi.encodeWithSignature("shipItem(uint256)", sku));
+        (bool success, ) = address(target).call(abi.encodeWithSignature("shipItem(uint256)", sku));
+        return success;
     }
 
     function receive(uint256 sku)
         public
         returns (bool)
     {
-        // solhint-disable-next-line
-        return address(target).call(abi.encodeWithSignature("receiveItem(uint256)", sku));
+        (bool success, ) = address(target).call(abi.encodeWithSignature("receiveItem(uint256)", sku));
+        return success;
     }
 }
