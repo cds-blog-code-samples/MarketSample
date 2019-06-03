@@ -15,6 +15,6 @@
   "author": "Amal Sudama <cds.sudama@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "truffle": "^5.0.0"
+    "truffle": "5.0.10"
   }
 }
