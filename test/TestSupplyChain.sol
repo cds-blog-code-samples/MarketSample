@@ -42,7 +42,7 @@ contract TestSupplyChain is SupplyChainState {
         address(buyActor).transfer(seedValue);
 
         // Seed known item to set contract to `for-sale`
-        sellActor.sell(itemName, itemPrice);
+        sellActor.placeItemForSale(itemName, itemPrice);
     }
 
     function testBuyerAndSellerAreDifferentActors()
@@ -96,7 +96,7 @@ contract TestSupplyChain is SupplyChainState {
     function testUserDoesNotPaysTheRightPrice() public {
         uint offer = itemPrice - 1; // underfund price
 
-        bool result = buyActor.buy(itemSku, offer);
+        bool result = buyActor.purchaseItem(itemSku, offer);
         Assert.isFalse(result, "under Paid for item");
 
         // Verify state is For Sale
@@ -108,7 +108,7 @@ contract TestSupplyChain is SupplyChainState {
     function testUserPaysTheRightPrice() public {
         uint offer = itemPrice + 1; // exceed price
 
-        bool result = buyActor.buy(itemSku, offer);
+        bool result = buyActor.purchaseItem(itemSku, offer);
         Assert.isTrue(result, "Paid the correct price...");
 
         // Verify state is Sold
@@ -121,10 +121,10 @@ contract TestSupplyChain is SupplyChainState {
 
         // Purchase item
         uint offer = itemPrice + 1; // exceed price
-        bool result = buyActor.buy(itemSku, offer);
+        bool result = buyActor.purchaseItem(itemSku, offer);
         Assert.isTrue(result, "Paid the correct price...");
 
-        result = randomActor.ship(itemSku);
+        result = randomActor.shipItem(itemSku);
         Assert.isFalse(result, "Non seller cannot ship");
 
         // Verify state is Sold
@@ -136,10 +136,10 @@ contract TestSupplyChain is SupplyChainState {
     function testSellerCanShipItem() public {
         // Purchase item
         uint offer = itemPrice + 1; // exceed price
-        bool result = buyActor.buy(itemSku, offer);
+        bool result = buyActor.purchaseItem(itemSku, offer);
         Assert.isTrue(result, "Paid the correct price...");
 
-        result = sellActor.ship(itemSku);
+        result = sellActor.shipItem(itemSku);
         Assert.isTrue(result, "seller should be able to ship");
 
         // Verify state is Shipped
@@ -152,7 +152,7 @@ contract TestSupplyChain is SupplyChainState {
         // Note: item starts in forSale state
 
         // Try to ship item
-        bool result = sellActor.ship(itemSku);
+        bool result = sellActor.shipItem(itemSku);
         Assert.isFalse(result, "Cannot ship item that is `ForSale`.");
 
         // Verify state is ForSale
@@ -164,15 +164,15 @@ contract TestSupplyChain is SupplyChainState {
     function testNonBuyerCannotSetItemAsReceived() public {
         // Purchase item
         uint offer = itemPrice + 1; // exceed price
-        bool result = buyActor.buy(itemSku, offer);
+        bool result = buyActor.purchaseItem(itemSku, offer);
         Assert.isTrue(result, "Paid the correct price...");
 
         // Ship item
-        result = sellActor.ship(itemSku);
+        result = sellActor.shipItem(itemSku);
         Assert.isTrue(result, "Seller can ship item that was sold.");
 
         // Try to receive item
-        result = randomActor.receive(itemSku);
+        result = randomActor.receiveItem(itemSku);
         Assert.isFalse(result, "Only buyer can receive an item");
 
         // Verify state is Shipped
@@ -184,15 +184,15 @@ contract TestSupplyChain is SupplyChainState {
     function testBuyerCanSetItemAsReceived() public {
         // Purchase item
         uint offer = itemPrice + 1; // exceed price
-        bool result = buyActor.buy(itemSku, offer);
+        bool result = buyActor.purchaseItem(itemSku, offer);
         Assert.isTrue(result, "Paid the correct price...");
 
         // Ship item
-        result = sellActor.ship(itemSku);
+        result = sellActor.shipItem(itemSku);
         Assert.isTrue(result, "Seller can ship item that was sold.");
 
         // Try to receive item
-        result = buyActor.receive(itemSku);
+        result = buyActor.receiveItem(itemSku);
         Assert.isTrue(result, "Buyer can set receive");
 
         // Verify state is Shipped
@@ -204,11 +204,11 @@ contract TestSupplyChain is SupplyChainState {
     function testBuyerCannotReceiveItemNotShipped() public {
         // Purchase item
         uint offer = itemPrice + 1; // exceed price
-        bool result = buyActor.buy(itemSku, offer);
+        bool result = buyActor.purchaseItem(itemSku, offer);
         Assert.isTrue(result, "Paid the correct price...");
 
         // Try to receive item
-        result = buyActor.receive(itemSku);
+        result = buyActor.receiveItem(itemSku);
         Assert.isFalse(result, "Buyer can not receive an item thats `sold`");
 
         // Verify state is Sold

@@ -5,50 +5,72 @@ import "truffle/DeployedAddresses.sol";
 import "../contracts/SupplyChain.sol";
 
 
-// Proxy contract Actors for buying and selling
-//
+/// @title Simulate Roles for testing scenarios
+/// @notice Use this Contract to simulate various roles in tests
+/// @dev A Proxy can fulfill a Buyer, Seller or random agent
 contract Proxy {
-    SupplyChain public target;
 
-    constructor(SupplyChain _target) public { target = _target; }
+    /// the proxied SupplyChain contract
+    SupplyChain public supplyChain;
 
-    // Allow contract to receive ether
+    /// @notice Create a proxy
+    /// @param _target the SupplyChain to interact with
+    constructor(SupplyChain _target) public { supplyChain = _target; }
+
+    /// Allow contract to receive ether
     function() external payable {}
 
+
+    /// @notice Retrieve supplyChain contract
+    /// @return the supplyChain contract
     function getTarget()
         public view
         returns (SupplyChain)
     {
-        return target;
+        return supplyChain;
     }
 
-    function sell(string memory itemName, uint256 itemPrice)
+    /// @notice Place an item for sale
+    /// @param itemName short description of item
+    /// @param itemPrice price in WEI
+    function placeItemForSale(string memory itemName, uint256 itemPrice)
         public
     {
-        target.addItem(itemName, itemPrice);
+        supplyChain.addItem(itemName, itemPrice);
     }
 
-    function buy(uint256 sku, uint256 offer)
+    /// @notice Purchase an item
+    /// @param sku item Sku
+    /// @param offer the price you pay
+    function purchaseItem(uint256 sku, uint256 offer)
         public
         returns (bool)
     {
-        (bool success, ) = address(target).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
+        /// Use call.value to invoke `supplyChain.buyItem(sku)` with msg.sender
+        /// set to the address of this proxy and value is set to `offer`
+        (bool success, ) = address(supplyChain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
         return success;
     }
 
-    function ship(uint256 sku)
+    /// @notice Ship an item
+    /// @param sku item Sku
+    function shipItem(uint256 sku)
         public
         returns (bool)
     {
-        (bool success, ) = address(target).call(abi.encodeWithSignature("shipItem(uint256)", sku));
+        /// invoke `supplyChain.shipItem(sku)` with msg.sender set to the address of this proxy
+        (bool success, ) = address(supplyChain).call(abi.encodeWithSignature("shipItem(uint256)", sku));
         return success;
     }
 
-    function receive(uint256 sku)
+    /// @notice Receive an item
+    /// @param sku item Sku
+    function receiveItem(uint256 sku)
         public
         returns (bool)
     {
-        (bool success, ) = address(target).call(abi.encodeWithSignature("receiveItem(uint256)", sku));
+        /// invoke `receiveChain.shipItem(sku)` with msg.sender set to the address of this proxy
+        (bool success, ) = address(supplyChain).call(abi.encodeWithSignature("receiveItem(uint256)", sku));
         return success;
     }
 }
