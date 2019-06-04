@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity >= 0.5.0 < 0.6.0;
 import "./SupplyChainState.sol";
 
 
@@ -13,14 +13,14 @@ contract SupplyChain is SupplyChainState {
         uint sku;
         uint price;
         State state;
-        address seller;
-        address buyer;
+        address payable seller;
+        address payable buyer;
     }
 
-    event ForSale(uint sku);
-    event Sold(uint sku);
-    event Shipped(uint sku);
-    event Received(uint sku);
+    event LogForSale(uint sku);
+    event LogSold(uint sku);
+    event LogShipped(uint sku);
+    event LogReceived(uint sku);
 
     modifier isOwner() {
         require(msg.sender == owner);
@@ -70,8 +70,8 @@ contract SupplyChain is SupplyChainState {
         skuCount = 0;
     }
 
-    function addItem(string _name, uint _price) public {
-        emit ForSale(skuCount);
+    function addItem(string memory _name, uint _price) public {
+        emit LogForSale(skuCount);
 
         items[skuCount] = Item({
             name: _name,
@@ -79,7 +79,7 @@ contract SupplyChain is SupplyChainState {
             price: _price,
             state: State.ForSale,
             seller: msg.sender,
-            buyer: 0
+            buyer: address(0)
         });
 
         skuCount = skuCount + 1;
@@ -91,27 +91,27 @@ contract SupplyChain is SupplyChainState {
         items[sku].state = State.Sold;
         items[sku].buyer = msg.sender;
         items[sku].seller.transfer(items[sku].price);
-        emit Sold(sku);
+        emit LogSold(sku);
     }
 
     function shipItem(uint sku)
     public sold(sku) verifyCaller(items[sku].seller)
     {
         items[sku].state = State.Shipped;
-        emit Shipped(sku);
+        emit LogShipped(sku);
     }
 
     function receiveItem(uint sku)
     public shipped(sku) verifyCaller(items[sku].buyer)
     {
         items[sku].state = State.Received;
-        emit Received(sku);
+        emit LogReceived(sku);
     }
 
     // used for testing...
     function fetchItem(uint _sku)
         public view
-        returns (string name, uint sku, uint price, uint state, address seller, address buyer)
+        returns (string memory name, uint sku, uint price, uint state, address seller, address buyer)
     {
         name = items[_sku].name;
         sku = items[_sku].sku;
