@@ -20,7 +20,6 @@ contract Proxy {
     /// Allow contract to receive ether
     function() external payable {}
 
-
     /// @notice Retrieve supplyChain contract
     /// @return the supplyChain contract
     function getTarget()
