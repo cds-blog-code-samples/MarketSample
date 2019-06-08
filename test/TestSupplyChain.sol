@@ -115,6 +115,20 @@ contract TestSupplyChain is SupplyChainState {
         Assert.equal(getItemState(itemSku), uint256(State.Sold), "Item should be `Sold`");
     }
 
+    // buyItem
+    // test item cannot be purchased twice
+    function testItemCannotBePurchasedTwice() public {
+        uint offer = itemPrice + 1; // exceed price
+
+        bool result = buyActor.purchaseItem(itemSku, offer);
+        Assert.isTrue(result, "Paid the correct price...");
+
+        result = buyActor.purchaseItem(itemSku, offer);
+        Assert.isFalse(result, "Should not be able to double buy an item");
+
+        // Verify state is Sold
+        Assert.equal(getItemState(itemSku), uint256(State.Sold), "Item should be `Sold`");
+    }
     // shipItem
     // test some random user cannot Ship item
     function testRandomUserCannotShipItem() public {
