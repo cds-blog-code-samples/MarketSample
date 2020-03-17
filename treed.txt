@@ -1,0 +1,7 @@
+build-current
+└── contracts
+    ├── Migrations.json
+    ├── SupplyChain.json
+    └── SupplyChainState.json
+
+1 directory, 3 files
