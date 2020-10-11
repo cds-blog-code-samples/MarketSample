@@ -19,7 +19,7 @@ contract Proxy {
     constructor(SupplyChain _target) public { supplyChain = _target; }
 
     /// Allow contract to receive ether
-    function() external payable {}
+    receive() external payable {}
 
     /// @notice Retrieve supplyChain contract
     /// @return the supplyChain contract

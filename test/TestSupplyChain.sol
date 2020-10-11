@@ -21,7 +21,7 @@ contract TestSupplyChain is SupplyChainState {
     uint256 itemSku = 0; // the sku will be set to 0
 
     // allow contract to receive ether
-    function() external payable {}
+    receive() external payable {}
 
     function beforeEach() public
     {
