@@ -1,4 +1,5 @@
-pragma solidity >= 0.5.0 < 0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.5.0 <0.8.0;
 import "./SupplyChainState.sol";
 
 
@@ -65,7 +66,7 @@ contract SupplyChain is SupplyChainState {
         _;
     }
 
-    constructor() public {
+    constructor() {
         owner = msg.sender;
         skuCount = 0;
     }

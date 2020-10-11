@@ -1,4 +1,5 @@
-pragma solidity >= 0.5.0 < 0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.5.0 <0.8.0;
 
 import "truffle/Assert.sol";
 import "truffle/DeployedAddresses.sol";
@@ -15,10 +16,10 @@ contract Proxy {
 
     /// @notice Create a proxy
     /// @param _target the SupplyChain to interact with
-    constructor(SupplyChain _target) public { supplyChain = _target; }
+    constructor(SupplyChain _target) { supplyChain = _target; }
 
     /// Allow contract to receive ether
-    function() external payable {}
+    receive() external payable {}
 
     /// @notice Retrieve supplyChain contract
     /// @return the supplyChain contract
@@ -45,9 +46,10 @@ contract Proxy {
         public
         returns (bool)
     {
-        /// Use call.value to invoke `supplyChain.buyItem(sku)` with msg.sender
+        /// Use call{value: offer} to invoke `supplyChain.buyItem(sku)` with msg.sender
         /// set to the address of this proxy and value is set to `offer`
-        (bool success, ) = address(supplyChain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
+        /// see: https://solidity.readthedocs.io/en/v0.7.3/070-breaking-changes.html#changes-to-the-syntax
+        (bool success, ) = address(supplyChain).call{value: offer}(abi.encodeWithSignature("buyItem(uint256)", sku));
         return success;
     }
 

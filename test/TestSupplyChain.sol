@@ -1,4 +1,5 @@
-pragma solidity >= 0.5.0 < 0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.5.0 <0.8.0;
 
 import "truffle/Assert.sol";
 import "truffle/DeployedAddresses.sol";
@@ -20,7 +21,7 @@ contract TestSupplyChain is SupplyChainState {
     uint256 itemSku = 0; // the sku will be set to 0
 
     // allow contract to receive ether
-    function() external payable {}
+    receive() external payable {}
 
     function beforeEach() public
     {
