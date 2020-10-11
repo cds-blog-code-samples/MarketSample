@@ -11,11 +11,6 @@ module.exports = {
   },
 
   networks: {
-    development: {
-      host: "localhost",
-      port: 8545,
-      network_id: "*" // Match any network id
-    },
     ropsten: {
       provider: () => new HDWalletProvider(mnemonic,ropsten_endpoint),
       network_id: 3,       // Ropsten's id
