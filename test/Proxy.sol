@@ -46,9 +46,10 @@ contract Proxy {
         public
         returns (bool)
     {
-        /// Use call.value to invoke `supplyChain.buyItem(sku)` with msg.sender
+        /// Use call{value: offer} to invoke `supplyChain.buyItem(sku)` with msg.sender
         /// set to the address of this proxy and value is set to `offer`
-        (bool success, ) = address(supplyChain).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
+        /// see: https://solidity.readthedocs.io/en/v0.7.3/070-breaking-changes.html#changes-to-the-syntax
+        (bool success, ) = address(supplyChain).call{value: offer}(abi.encodeWithSignature("buyItem(uint256)", sku));
         return success;
     }
 
