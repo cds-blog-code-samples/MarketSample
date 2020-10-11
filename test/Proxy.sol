@@ -16,7 +16,7 @@ contract Proxy {
 
     /// @notice Create a proxy
     /// @param _target the SupplyChain to interact with
-    constructor(SupplyChain _target) public { supplyChain = _target; }
+    constructor(SupplyChain _target) { supplyChain = _target; }
 
     /// Allow contract to receive ether
     receive() external payable {}

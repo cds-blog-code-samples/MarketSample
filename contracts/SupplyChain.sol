@@ -66,7 +66,7 @@ contract SupplyChain is SupplyChainState {
         _;
     }
 
-    constructor() public {
+    constructor() {
         owner = msg.sender;
         skuCount = 0;
     }
