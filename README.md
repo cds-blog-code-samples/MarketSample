@@ -1,5 +1,5 @@
 # Supply Chain example Solidity
-
+(test)
 ## Solidity testing
 
 Use a proxy pattern where the proxy communicates to the test supplyChain
