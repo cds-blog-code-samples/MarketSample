@@ -1,5 +1,12 @@
 # Supply Chain example Solidity
-(test)
+
+## UML overview
+
+[UML Sequence diagrams](./uml-overview.md) generated from test transactions.
+The hope is readers will be able to reason about the contracts easier by having
+a another perspective besides solidity code and test output.
+
+>>>>>>> 9a70085 (link to UML)
 ## Solidity testing
 
 Use a proxy pattern where the proxy communicates to the test supplyChain
@@ -21,9 +28,9 @@ Each test will need
   - an item and its price to be sold
 
 
-### UML
+### Proxy diagram
 
-![UML](./uml.png)
+![diagram](./uml.png)
 
 ``` plantuml
 @startuml
