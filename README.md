@@ -6,7 +6,6 @@
 The hope is readers will be able to reason about the contracts easier by having
 a another perspective besides solidity code and test output.
 
->>>>>>> 9a70085 (link to UML)
 ## Solidity testing
 
 Use a proxy pattern where the proxy communicates to the test supplyChain

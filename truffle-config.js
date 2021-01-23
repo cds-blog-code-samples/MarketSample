@@ -3,6 +3,7 @@ const mnemonic = process.env.MNEMONIC
 const ropsten_endpoint = process.env.ROPSTEN_ENDPOINT
 
 module.exports = {
+  plugins: ['txlog-to-plantuml'],
 
   compilers: {
     solc: {
@@ -11,6 +12,12 @@ module.exports = {
   },
 
   networks: {
+    development: {
+      host: '127.0.0.1',
+      port: 8545,
+      network_id: '*'
+    },
+
     ropsten: {
       provider: () => new HDWalletProvider(mnemonic,ropsten_endpoint),
       network_id: 3,       // Ropsten's id
