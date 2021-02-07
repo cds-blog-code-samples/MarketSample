@@ -5,6 +5,8 @@ Test date: 2021 Feb 07
 ## should add an item with the provided name and price
 Tx: 0x603d5ee749c28c5fd47962ed69c42f8340cf02b8d3720a72ab1e6f53afa77feb
 
+[link to test definition](https://github.com/cds-blog-code-samples/MarketSample/blob/25d051d159e583c780754a53f0bc02750aed740b/test/supply_chain.test.js#L22-L33)
+
 ### diagram 1
 
 [SVG :telescope:](https://www.planttext.com/api/plantuml/svg/ZP9DJnin48Rl_XKZkBIYg5xlTqHJqcLNz5Gak5VUzJYns7XNjXSb4Fvx9o5KAQVwOdliUJplExxsGRemhNl6v1G6EwrRT8pvHsD7wUGQUboYLJzazxXqmsHLDVI3W_EcRkggPkpAXssFSyPMA1KwU640juCppuCDib_qPcdNQ0DXTA2ZXi9lX75oOu_7qBrvHeWIsjr9fOnTGiJPAz6_lkFV-J-jDyjLyD1kuS5DMXE31HDwX8UDXLlfLpFWcup7AaNCax8JHPTgbUHb9b1bPPS8NSG9xpGNRQ7YN72P2zb6cEaqbbhckSQMtEW2LLd_Me3qS4Rp6ID3WkdCA4dF_JIE_RPQIMD_y-XmXs-IigYoDf9HqMHbsLGB5QL9Ysc-K3ojagGfUL55efsTP9ynjd_aSluHUN4nWswmFhXfNygdp_02JxAVaFJ1A_jmc_8FcCiPa5blJMDt9mKh3DBqdbqTM_Vb_8RVSCxdkszGKGiS2GOhrmWKe2Ouz7w_V49dj445kx-fyztXhHtvBBAuRaLJ5R6GIS5p4QKyYWMFerGtMCUBh6WmJWaAt_ybdDH_8FslTqSIoJkAf75Dy_uB_m40)
@@ -37,7 +39,7 @@ actor EOA as "EOA"
 participant SupplyChain_01 as "0x498C6b1a18F699FCAd154be57Ad05C44F908C12b:SupplyChain"
 
 EOA -> SupplyChain_01 ++: constructor() { value: 0 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -92,7 +94,7 @@ note left #FEFECE
 | uint256 | _price | 1000 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -144,7 +146,7 @@ actor EOA as "EOA"
 participant SupplyChain_01 as "0x6862Aa0869416631C3DBd6487493094731Ac220e:SupplyChain"
 
 EOA -> SupplyChain_01 ++: constructor() { value: 0 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -199,7 +201,7 @@ note left #FEFECE
 | uint256 | _price | 1000 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -218,6 +220,8 @@ endlegend
 
 ## should allow someone to purchase an item and update state accordingly
 Tx: 0x036b59b09a36849220b276431c8255f1fd9ae9896c20e83a3a6d676c007ca1f8
+
+[link to test](https://github.com/cds-blog-code-samples/MarketSample/blob/25d051d159e583c780754a53f0bc02750aed740b/test/supply_chain.test.js#L45-L62)
 
 ### diagram 1
 
@@ -251,7 +255,7 @@ actor EOA as "EOA"
 participant SupplyChain_01 as "0x98cF230e0C9D848bbD3873EbAC61C8Dd1A141F62:SupplyChain"
 
 EOA -> SupplyChain_01 ++: constructor() { value: 0 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -306,7 +310,7 @@ note left #FEFECE
 | uint256 | _price | 1000 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -364,7 +368,7 @@ end note
 
 SupplyChain_01 -[#green]-> undefined_01 : () { value: 1000 }
 SupplyChain_01 -[#green]-> undefined_02 : () { value: 1000 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -418,7 +422,7 @@ actor EOA as "EOA"
 participant SupplyChain_01 as "0x19885dc4cFD1129827513273559064DA8a56aA4e:SupplyChain"
 
 EOA -> SupplyChain_01 ++: constructor() { value: 0 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -473,7 +477,7 @@ note left #FEFECE
 | uint256 | _price | 1000 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -583,7 +587,7 @@ actor EOA as "EOA"
 participant SupplyChain_01 as "0x55CC3eD4D34508dCD3427E297E4783542D623b7f:SupplyChain"
 
 EOA -> SupplyChain_01 ++: constructor() { value: 0 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -638,7 +642,7 @@ note left #FEFECE
 | uint256 | _price | 1000 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -696,7 +700,7 @@ end note
 
 SupplyChain_01 -[#green]-> undefined_01 : () { value: 1000 }
 SupplyChain_01 -[#green]-> undefined_02 : () { value: 1000 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -750,7 +754,7 @@ actor EOA as "EOA"
 participant SupplyChain_01 as "0x70B60EBA5B3e9Ad0b6B479e84E2fB5Ecaf3f2E15:SupplyChain"
 
 EOA -> SupplyChain_01 ++: constructor() { value: 0 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -805,7 +809,7 @@ note left #FEFECE
 | uint256 | _price | 1000 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -863,7 +867,7 @@ end note
 
 SupplyChain_01 -[#green]-> undefined_01 : () { value: 1000 }
 SupplyChain_01 -[#green]-> undefined_02 : () { value: 0 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -972,7 +976,7 @@ actor EOA as "EOA"
 participant SupplyChain_01 as "0xa936c32a1Eb4ffAC67581D751E1E8648AB802EfF:SupplyChain"
 
 EOA -> SupplyChain_01 ++: constructor() { value: 0 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1027,7 +1031,7 @@ note left #FEFECE
 | uint256 | _price | 1000 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1085,7 +1089,7 @@ end note
 
 SupplyChain_01 -[#green]-> undefined_01 : () { value: 1000 }
 SupplyChain_01 -[#green]-> undefined_02 : () { value: 1000 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1141,7 +1145,7 @@ note left #FEFECE
 | uint256 | sku | 0 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1193,7 +1197,7 @@ actor EOA as "EOA"
 participant SupplyChain_01 as "0xf735010ADAa9eC653f7E16049AA461e8728e6aAe:SupplyChain"
 
 EOA -> SupplyChain_01 ++: constructor() { value: 0 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1248,7 +1252,7 @@ note left #FEFECE
 | uint256 | _price | 1000 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1306,7 +1310,7 @@ end note
 
 SupplyChain_01 -[#green]-> undefined_01 : () { value: 1000 }
 SupplyChain_01 -[#green]-> undefined_02 : () { value: 1000 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1362,7 +1366,7 @@ note left #FEFECE
 | uint256 | sku | 0 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1414,7 +1418,7 @@ actor EOA as "EOA"
 participant SupplyChain_01 as "0x5cBb040d028b338cf1b3890236241322EF80A0Be:SupplyChain"
 
 EOA -> SupplyChain_01 ++: constructor() { value: 0 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1469,7 +1473,7 @@ note left #FEFECE
 | uint256 | _price | 1000 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1527,7 +1531,7 @@ end note
 
 SupplyChain_01 -[#green]-> undefined_01 : () { value: 1000 }
 SupplyChain_01 -[#green]-> undefined_02 : () { value: 1000 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1583,7 +1587,7 @@ note left #FEFECE
 | uint256 | sku | 0 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1637,7 +1641,7 @@ note left #FEFECE
 | uint256 | sku | 0 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1689,7 +1693,7 @@ actor EOA as "EOA"
 participant SupplyChain_01 as "0x1Ed7d6D922db472dd102202F536cD2C204aa7D65:SupplyChain"
 
 EOA -> SupplyChain_01 ++: constructor() { value: 0 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1744,7 +1748,7 @@ note left #FEFECE
 | uint256 | _price | 1000 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1802,7 +1806,7 @@ end note
 
 SupplyChain_01 -[#green]-> undefined_01 : () { value: 1000 }
 SupplyChain_01 -[#green]-> undefined_02 : () { value: 1000 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1858,7 +1862,7 @@ note left #FEFECE
 | uint256 | sku | 0 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -1965,7 +1969,7 @@ actor EOA as "EOA"
 participant SupplyChain_01 as "0x7a9d7f74CF8f36e5d150D1698C2a38c1a0E383Bc:SupplyChain"
 
 EOA -> SupplyChain_01 ++: constructor() { value: 0 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -2020,7 +2024,7 @@ note left #FEFECE
 | uint256 | _price | 1000 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -2078,7 +2082,7 @@ end note
 
 SupplyChain_01 -[#green]-> undefined_01 : () { value: 1000 }
 SupplyChain_01 -[#green]-> undefined_02 : () { value: 1000 }
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -2134,7 +2138,7 @@ note left #FEFECE
 | uint256 | sku | 0 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
@@ -2188,7 +2192,7 @@ note left #FEFECE
 | uint256 | sku | 0 |
 end note
 
-SupplyChain_01 -> EOA --: 
+SupplyChain_01 -> EOA --:
 
 
 legend
