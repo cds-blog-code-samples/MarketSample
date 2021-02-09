@@ -1,5 +1,6 @@
 Test date: 2021 Feb 07
 
+Best viewed with [pegmatite chrome plugin](https://chrome.google.com/webstore/detail/pegmatite/jegkfbnfbfnohncpcfcimepibmhlkldo)
 
 
 ## testBuyerAndSellerAreDifferentActors
