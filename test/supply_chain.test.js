@@ -1,6 +1,6 @@
-let BN = web3.utils.BN
-let SupplyChain = artifacts.require('SupplyChain')
-let catchRevert = require("./exceptionsHelpers.js").catchRevert
+const BN = web3.utils.BN
+const SupplyChain = artifacts.require('SupplyChain');
+const truffleAssert = require('truffle-assertions');
 
 contract('SupplyChain', function(accounts) {
 
@@ -63,7 +63,9 @@ contract('SupplyChain', function(accounts) {
 
     it("should error when not enough value is sent when purchasing an item", async()=>{
         await instance.addItem(name, price, {from: alice})
-        await catchRevert(instance.buyItem(0, {from: bob, value: 1}))
+        await truffleAssert.reverts(
+          instance.buyItem(0, {from: bob, value: 1})
+        );
     })
 
     it("should emit LogSold event when and item is purchased", async()=>{
@@ -80,10 +82,10 @@ contract('SupplyChain', function(accounts) {
     })
 
     it("should revert when someone that is not the seller tries to call shipItem()", async()=>{
-        await instance.addItem(name, price, {from: alice})
-        await instance.buyItem(0, {from: bob, value: price})
-        await catchRevert(instance.shipItem(0, {from: bob}))
-    })
+        await instance.addItem(name, price, {from: alice});
+        await instance.buyItem(0, {from: bob, value: price});
+        await truffleAssert.reverts(instance.shipItem(0, {from: bob}));
+    });
 
     it("should allow the seller to mark the item as shipped", async() => {
 
@@ -126,7 +128,7 @@ contract('SupplyChain', function(accounts) {
         await instance.buyItem(0, {from: bob, value: excessAmount})
         await instance.shipItem(0, {from: alice})
 
-        await catchRevert(instance.receiveItem(0, {from: alice}))
+        await truffleAssert.reverts(instance.receiveItem(0, {from: alice}))
     })
 
     it("should emit a LogReceived event when an item is received", async() => {
