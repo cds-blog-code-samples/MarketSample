@@ -34,7 +34,7 @@ contract SupplyChain is SupplyChainState {
     }
 
     modifier paidEnough(uint _price) {
-        require(msg.value >= _price);
+        require(msg.value >= _price, "underfunded");
         _;
     }
 
